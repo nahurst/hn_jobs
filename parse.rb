@@ -26,7 +26,14 @@ COLLECTION_SETS = {
     "sinatra", "pylons", "turbogears", "zope", "compojure", "spring"
   ]
 }
-HN_DATA = {}
+MUST_MERGE = [
+  ["mongo", "mongodb"],
+  ["javascript", "js"],
+  ["node", "node.js"],
+  ["postgres", "postgresql"],
+  ["objective-c", "obj-c"]
+]
+HN_DATA = {} # collection_set_name => hn_doc_name => term => count
 
 def collect_counts(hn_doc_name, hn_doc_text)
   COLLECTION_SETS.each_pair do |collection_set_name, set|
@@ -41,18 +48,38 @@ def collect_counts(hn_doc_name, hn_doc_text)
   end
 end
 
+# we've got to merge things like js and javascript
+# and this is a quick, sloppy way to do it
+def merge_counts
+  MUST_MERGE.each do |terms_to_merge|
+    keep = terms_to_merge[0]
+    discard = terms_to_merge[1]
+    HN_DATA.each_pair do |collection_set_name, hn_doc_set|
+      hn_doc_set.each_pair do |hn_doc_name, term_counts|
+        term_counts.each_pair do |term, count|
+          if term == keep
+            term_counts[keep] = term_counts[discard] + count
+            COLLECTION_SETS[collection_set_name].delete(discard)
+          end
+        end
+      end
+    end
+  end
+end
+
 def csv_counts
   CSV.open("hn_data.csv", "wb") do |csv|
     HN_DATA.keys.sort.each do |collection_set_name|
+
       csv << [collection_set_name]
-      column_headings = HN_DATA[collection_set_name].keys.sort.inject([""]){ |all, item| all << item }
-      row_headings = COLLECTION_SETS[collection_set_name].sort
+      column_headings = COLLECTION_SETS[collection_set_name].sort.inject([""]){ |all, item| all << item }
+      row_headings = HN_DATA[collection_set_name].keys.sort
 
       csv << column_headings
 
-      row_headings.each do |term|
-        row = [term]
-        HN_DATA[collection_set_name].keys.sort.each do |hn_doc_name|
+      row_headings.each do |hn_doc_name|
+        row = [hn_doc_name]
+        HN_DATA[collection_set_name][hn_doc_name].keys.sort.each do |term|
           row << HN_DATA[collection_set_name][hn_doc_name][term]
         end
         csv << row
@@ -73,4 +100,5 @@ files.each do |file_name|
     collect_counts(File.basename(file_name, ".html"), text)
   end
 end
+merge_counts
 csv_counts
