@@ -1,0 +1,11 @@
+= Hacker News Job Post Trend Collector
+
+This is a collection of scripts used to download, parse, and compute trends on HN "Who is hiring" threads. The primary priority with this code was writing it fast. I'm happy to accept any improvements; there are many to be made.
+
+== get_jobs.rb
+
+Downloads all the who's hiring pages.
+
+== meetup_twitter_getter.rb
+
+Parses, counts terms, merges similar terms, and generates a CSV.
