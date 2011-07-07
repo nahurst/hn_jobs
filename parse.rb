@@ -59,6 +59,7 @@ def merge_counts
         term_counts.each_pair do |term, count|
           if term == keep
             term_counts[keep] = term_counts[discard] + count
+            term_counts.delete(discard)
             COLLECTION_SETS[collection_set_name].delete(discard)
           end
         end
