@@ -1,3 +1,7 @@
+# run get_jobs.rb before running this
+# this will parse those files for counts
+# then print things out to a csv file
+
 require 'rubygems'
 require 'nokogiri'
 require 'csv'

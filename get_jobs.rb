@@ -1,3 +1,7 @@
+# run this before running parse.rb
+# this will collect all the data so we can manipulate it
+# without constantly hitting yc
+
 [
   ["2011-07", "http://news.ycombinator.com/item?id=2719028"],
   ["2011-06", "http://news.ycombinator.com/item?id=2607052"],
